@@ -19,11 +19,7 @@ const Index = () => (
   <Container height="100vh">
     <Hero title="MyState" />
     <Main>
-      <Text color="text">
-        Example repository of <Code>Next.js</Code> + <Code>chakra-ui</Code> +{' '}
-        <Code>TypeScript</Code>.
-        <Select />
-      </Text>
+      <Select />
 
       <List spacing={3} my={0} color="text">
         <ListItem>
