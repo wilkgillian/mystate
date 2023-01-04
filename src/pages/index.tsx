@@ -4,24 +4,25 @@ import {
   Code,
   List,
   ListIcon,
-  ListItem,
-} from '@chakra-ui/react'
-import { CheckCircleIcon, LinkIcon } from '@chakra-ui/icons'
+  ListItem
+} from '@chakra-ui/react';
+import { CheckCircleIcon, LinkIcon } from '@chakra-ui/icons';
 
-import { Hero } from '../components/Hero'
-import { Container } from '../components/Container'
-import { Main } from '../components/Main'
-import { DarkModeSwitch } from '../components/DarkModeSwitch'
-import { CTA } from '../components/CTA'
-import { Footer } from '../components/Footer'
+import Hero from '../components/Hero';
+import { Container } from '../components/Container';
+import { Main } from '../components/Main';
+import { DarkModeSwitch } from '../components/DarkModeSwitch';
+import { Footer } from '../components/Footer';
+import Select from '../components/Select';
 
 const Index = () => (
   <Container height="100vh">
-    <Hero />
+    <Hero title="MyState" />
     <Main>
       <Text color="text">
         Example repository of <Code>Next.js</Code> + <Code>chakra-ui</Code> +{' '}
         <Code>TypeScript</Code>.
+        <Select />
       </Text>
 
       <List spacing={3} my={0} color="text">
@@ -47,10 +48,9 @@ const Index = () => (
 
     <DarkModeSwitch />
     <Footer>
-      <Text>Next ❤️ Chakra</Text>
+      <Text>Created by Wilk Gillian.</Text>
     </Footer>
-    <CTA />
   </Container>
-)
+);
 
-export default Index
+export default Index;
