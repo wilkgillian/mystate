@@ -10,13 +10,22 @@ import {
 import { MdArrowDropDown } from 'react-icons/md';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { addLanguages, useLanguages } from '../redux/sliceLanguages';
+import { useDispatch, useSelector } from 'react-redux';
 
 function Select() {
+  const languages = useSelector(useLanguages);
+
+  console.log(languages);
+
+  const dispatch = useDispatch();
+
   const [dados, setDados] = useState([]);
   const [cities, setCities] = useState([]);
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
   const [infos, setInfos] = useState([]);
+  const [value, setValue] = useState('');
   const [loading, setloading] = useState(false);
 
   function handleOptionState(state: string) {
@@ -57,7 +66,7 @@ function Select() {
     getMunicipes(state);
   }, [state]);
 
-  console.log(infos);
+  // console.log(infos);
 
   return (
     <VStack>
@@ -93,6 +102,18 @@ function Select() {
           ? ''
           : infos.map(inf => <li key={inf.id}>{inf.nome}</li>)}
       </ul>
+      <Box>
+        <input
+          type="text"
+          value={value}
+          onChange={event => setValue(event.target.value)}
+        />
+        <button
+          onClick={() => dispatch(addLanguages({ state: value, city: value }))}
+        >
+          Adc
+        </button>
+      </Box>
     </VStack>
   );
 }
