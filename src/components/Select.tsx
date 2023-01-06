@@ -1,22 +1,20 @@
 import {
-  Box,
   Button,
-  filter,
-  Flex,
-  Input,
   Select as SelectChakra,
+  Spinner,
+  Td,
+  Tr,
   VStack
 } from '@chakra-ui/react';
 import { MdArrowDropDown } from 'react-icons/md';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { addLanguages, useLanguages } from '../redux/sliceLanguages';
+import { FormEvent, useEffect, useState } from 'react';
+import { addInfos, useIbge } from '../redux/sliceIbge';
 import { useDispatch, useSelector } from 'react-redux';
+import { api } from '../services/api';
+import Table from './Table';
 
 function Select() {
-  const languages = useSelector(useLanguages);
-
-  console.log(languages);
+  // const ibgeInfos = useSelector(useIbge);
 
   const dispatch = useDispatch();
 
@@ -25,7 +23,6 @@ function Select() {
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
   const [infos, setInfos] = useState([]);
-  const [value, setValue] = useState('');
   const [loading, setloading] = useState(false);
 
   function handleOptionState(state: string) {
@@ -38,42 +35,53 @@ function Select() {
     if (sigla === '') {
       return;
     } else {
-      const { data } = await axios.get(
-        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${sigla}/municipios`
-      );
+      const { data } = await api.get(`/estados/${sigla}/municipios`);
       setCities(data);
     }
   }
-  async function handleSearch(state: string, id: string) {
+  async function handleSearch(e: FormEvent, state: string, id: string) {
+    e.preventDefault();
     if (state === '' || id === '') {
       return;
     } else {
-      const { data } = await axios.get(
-        ` https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${id}/distritos`
-      );
-
+      setloading(true);
+      dispatch(addInfos({ state: state, city: id }));
+      const { data } = await api.get(`/municipios/${id}/distritos`);
       setInfos(data);
+      setCity('');
+      setloading(false);
     }
   }
+  const informations = infos.map(info => {
+    return {
+      cidade: info.municipio.nome,
+      microrregiao: info.municipio.microrregiao.nome,
+      mesorregiao: info.municipio.microrregiao.mesorregiao.nome,
+      uf: info.municipio.microrregiao.mesorregiao.UF.sigla,
+      estado: info.municipio.microrregiao.mesorregiao.UF.nome,
+      regiao: info.municipio.microrregiao.mesorregiao.UF.regiao.nome,
+      regiao_sigla: info.municipio.microrregiao.mesorregiao.UF.regiao.sigla
+    };
+  });
   useEffect(() => {
     async function loadData() {
-      const { data } = await axios.get(
-        'https://servicodados.ibge.gov.br/api/v1/localidades/estados'
-      );
+      const { data } = await api.get('/estados');
       setDados(data);
     }
     loadData();
-    getMunicipes(state);
+    if (state !== null) {
+      getMunicipes(state);
+    }
   }, [state]);
 
-  // console.log(infos);
-
   return (
-    <VStack>
+    <VStack as="form">
       <SelectChakra
         icon={<MdArrowDropDown />}
+        value={null}
         onChange={event => handleOptionState(event.target.value)}
         placeholder="Selecione o estado"
+        required
       >
         {dados.map(state => (
           <option value={state.sigla} key={state.id}>
@@ -84,36 +92,48 @@ function Select() {
       {state !== '' && (
         <SelectChakra
           icon={<MdArrowDropDown />}
+          value={null}
           onChange={event => handleOptionCity(event.target.value)}
           placeholder="Selecione a cidade"
+          required
         >
-          {cities.map(cities => (
-            <option value={cities.id} key={cities.id}>
-              {cities.nome}
-            </option>
-          ))}
+          {!loading ? (
+            cities.map(cities => (
+              <option value={cities.id} key={cities.id}>
+                {cities.nome}
+              </option>
+            ))
+          ) : (
+            <Spinner />
+          )}
         </SelectChakra>
       )}
-      <Button type="submit" onClick={() => handleSearch(state, city)}>
+      <Button
+        type="submit"
+        disabled={loading || state === '' || city === '' ? true : false}
+        onClick={event => handleSearch(event, state, city)}
+      >
         Buscar informações
       </Button>
-      <ul>
-        {infos === null
-          ? ''
-          : infos.map(inf => <li key={inf.id}>{inf.nome}</li>)}
-      </ul>
-      <Box>
-        <input
-          type="text"
-          value={value}
-          onChange={event => setValue(event.target.value)}
-        />
-        <button
-          onClick={() => dispatch(addLanguages({ state: value, city: value }))}
-        >
-          Adc
-        </button>
-      </Box>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <Table>
+          {informations?.map(inf => (
+            <>
+              <Tr key={inf.uf}>
+                <Td>{inf.cidade}</Td>
+                <Td>{inf.estado}</Td>
+                <Td>{inf.microrregiao}</Td>
+                <Td>{inf.mesorregiao}</Td>
+                <Td>{inf.uf}</Td>
+                <Td>{inf.regiao}</Td>
+                <Td>{inf.regiao_sigla}</Td>
+              </Tr>
+            </>
+          ))}
+        </Table>
+      )}
     </VStack>
   );
 }

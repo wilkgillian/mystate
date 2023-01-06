@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import sliceLanguages from './sliceLanguages';
+import sliceIbge from './sliceIbge';
 
 const store = configureStore({
   reducer: {
-    languages: sliceLanguages
+    ibge: sliceIbge
   }
 });
 
